@@ -40,8 +40,15 @@
    + [弹性负载均衡 ELB](templates/elb_dashboard_template.json)
    + [关系型数据库 RDS](templates/rds_dashboard_template.json)
    + [Web应用防火墙 WAF](templates/waf_dashboard_template.json)
+   + [Web应用防火墙 WAF-独享引擎实例](templates/waf_premium_instance_dashboard_template.json)
    + [弹性公网IP和带宽 VPC](templates/vpc_dashboard_template.json)
    + [云防火墙 CFW](templates/cfw_dashboard_template.json)
+   + [分布式消息服务 DMS-kafka](templates/dms(Kafka)_dashboard_template.json)
+   + [分布式消息服务 DMS-RocketMQ](templates/dms_RocketMQ_dashboard_template.json)
+   + [分布式消息服务 DMS-rabbitmq](templates/dms_rabbitmq-dashboard_template.json)
+   + [云数据库 GeminiDB-cassandra](templates/nosql_cassandra_dashboard_template.json)
+   + [DDOS高防 DDOS](templates/ddos_dashboard_template.json)
+   + [内容分发网络 CDN](templates/cdn_dashboard_template.json)
 4. 效果展示：
    >ECS:
    > ![img.png](pic/ecs.jpg)

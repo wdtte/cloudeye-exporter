@@ -7,7 +7,7 @@ import (
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
+	v3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	"gopkg.in/yaml.v3"
 
@@ -63,6 +63,7 @@ func InitCloudConf(file string) error {
 		return err
 	}
 
+	initEndpointConfig()
 	return err
 }
 
@@ -199,4 +200,18 @@ func getProjectInfo() (*model.KeystoneListProjectsResponse, error) {
 				WithIgnoreSSLVerification(true)).
 			Build())
 	return iamclient.KeystoneListProjects(&model.KeystoneListProjectsRequest{Name: &conf.ProjectName})
+}
+
+var endpointConfig map[string]string
+
+func initEndpointConfig() {
+	context, err := ioutil.ReadFile("endpoints.yml")
+	if err != nil {
+		logs.Logger.Errorf("Init endpoint config error: %s", err.Error())
+		return
+	}
+	err = yaml.Unmarshal(context, &endpointConfig)
+	if err != nil {
+		logs.Logger.Errorf("Init endpoint config error: %s", err.Error())
+	}
 }

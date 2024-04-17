@@ -16,9 +16,10 @@ import (
 
 type EvsInfo struct {
 	ResourceBaseInfo
-	DiskName string
-	ServerId string
-	Device   string
+	DiskName     string
+	VolumeDiskId string
+	ServerId     string
+	Device       string
 }
 
 var evsInfo serversInfo
@@ -27,7 +28,6 @@ type EVSInfo struct{}
 
 func (getter EVSInfo) GetResourceInfo() (map[string]labelInfo, []model.MetricInfoList) {
 	resourceInfos := map[string]labelInfo{}
-	filterMetrics := make([]model.MetricInfoList, 0)
 	evsInfo.Lock()
 	defer evsInfo.Unlock()
 	if evsInfo.LabelInfo == nil || time.Now().Unix() > evsInfo.TTL {
@@ -43,11 +43,21 @@ func (getter EVSInfo) GetResourceInfo() (map[string]labelInfo, []model.MetricInf
 			return evsInfo.LabelInfo, evsInfo.FilterMetrics
 		}
 
+		allMetrics, err := listAllMetrics("SYS.EVS")
+		if err != nil {
+			logs.Logger.Error("Get all evs metrics error:", err.Error())
+			return evsInfo.LabelInfo, evsInfo.FilterMetrics
+		}
+
+		metricMap := map[string]model.MetricInfoList{}
+		for _, metric := range allMetrics {
+			resourceKey := GetResourceKeyFromMetricInfo(metric)
+			metricMap[resourceKey] = metric
+		}
+
 		sysConfigMap := getMetricConfigMap("SYS.EVS")
 		for _, volume := range volumes {
-			if metricNames, ok := sysConfigMap["disk_name"]; ok {
-				metrics := buildSingleDimensionMetrics(metricNames, "SYS.EVS", "disk_name", volume.DiskName)
-				filterMetrics = append(filterMetrics, metrics...)
+			if _, ok := sysConfigMap["disk_name"]; ok {
 				info := labelInfo{
 					Name:  []string{"id", "name", "epId", "serverId", "device"},
 					Value: []string{volume.ID, volume.Name, volume.EpId, volume.ServerId, volume.Device},
@@ -55,12 +65,19 @@ func (getter EVSInfo) GetResourceInfo() (map[string]labelInfo, []model.MetricInf
 				keys, values := getTags(volume.Tags)
 				info.Name = append(info.Name, keys...)
 				info.Value = append(info.Value, values...)
-				resourceInfos[GetResourceKeyFromMetricInfo(metrics[0])] = info
+
+				if _, ok := metricMap[volume.DiskName]; ok {
+					resourceInfos[volume.DiskName] = info
+					continue
+				}
+				if _, ok := metricMap[volume.VolumeDiskId]; ok {
+					resourceInfos[volume.VolumeDiskId] = info
+				}
 			}
 		}
 
 		evsInfo.LabelInfo = resourceInfos
-		evsInfo.FilterMetrics = filterMetrics
+		evsInfo.FilterMetrics = allMetrics
 		evsInfo.TTL = time.Now().Add(TTL).Unix()
 	}
 	return evsInfo.LabelInfo, evsInfo.FilterMetrics
@@ -88,12 +105,17 @@ func getAllVolume() ([]EvsInfo, error) {
 					Tags: disk.Tags,
 					EpId: *disk.EnterpriseProjectId,
 				},
-				DiskName: getDiskName(disk.Attachments[index].ServerId, disk.Attachments[index].Device),
-				ServerId: disk.Attachments[index].ServerId,
-				Device:   disk.Attachments[index].Device})
+				DiskName:     getDiskName(disk.Attachments[index].ServerId, disk.Attachments[index].Device),
+				VolumeDiskId: getVolumeDiskId(disk.Attachments[index].ServerId, disk.Id),
+				ServerId:     disk.Attachments[index].ServerId,
+				Device:       disk.Attachments[index].Device})
 		}
 	}
 	return volumesInfo, nil
+}
+
+func getVolumeDiskId(serverId string, diskId string) string {
+	return fmt.Sprintf("%s-volume-%s", serverId, diskId)
 }
 
 func listVolumesFromEvs() ([]evsmodel.VolumeDetail, error) {
@@ -140,9 +162,10 @@ func getAllVolumeFromRMS() ([]EvsInfo, error) {
 					EpId: *resource.EpId,
 					Tags: resource.Tags,
 				},
-				DiskName: getDiskName(attachment.ServerId, attachment.Device),
-				ServerId: attachment.ServerId,
-				Device:   attachment.Device,
+				DiskName:     getDiskName(attachment.ServerId, attachment.Device),
+				VolumeDiskId: getVolumeDiskId(attachment.ServerId, *resource.Id),
+				ServerId:     attachment.ServerId,
+				Device:       attachment.Device,
 			})
 		}
 	}

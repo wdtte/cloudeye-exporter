@@ -1,9 +1,15 @@
 package collector
 
 import (
+	"errors"
+	"os"
 	"testing"
 
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
+
+	"github.com/huaweicloud/cloudeye-exporter/logs"
 )
 
 func TestName(t *testing.T) {
@@ -52,4 +58,57 @@ func TestInitConfigSecurityModIsFalse(t *testing.T) {
 
 	assert.Equal(t, CloudConf.Auth.AccessKey, conf.AccessKey)
 	assert.Equal(t, CloudConf.Auth.SecretKey, conf.SecretKey)
+}
+
+func TestInitEndpointConfig(t *testing.T) {
+	testCases := []struct {
+		name    string
+		patches func() *gomonkey.Patches
+		expect  func(t *testing.T)
+	}{
+		{
+			"ReadConfigFileError",
+			func() *gomonkey.Patches {
+				patches := gomonkey.NewPatches()
+				patches.ApplyFuncReturn(os.ReadFile, nil, errors.New("read file error"))
+				return patches
+			},
+			func(t *testing.T) {
+				assert.NotNil(t, &endpointConfig)
+			},
+		},
+		{
+			"UnMarshalConfigError",
+			func() *gomonkey.Patches {
+				patches := gomonkey.NewPatches()
+				patches.ApplyFuncReturn(os.ReadFile, []byte("\"rms\":\r\n  \"https://rms.xxx.xxx.com\"\r\n\"eps\":\r\n  \"https://eps.xxx.xxx.com\""), nil)
+				patches.ApplyFuncReturn(yaml.Unmarshal, errors.New("unmarshal yaml error"))
+				return patches
+			},
+			func(t *testing.T) {
+				assert.NotNil(t, &endpointConfig)
+			},
+		},
+		{
+			"Success",
+			func() *gomonkey.Patches {
+				patches := gomonkey.NewPatches()
+				patches.ApplyFuncReturn(os.ReadFile, []byte("\"rms\":\r\n  \"https://rms.xxx.xxx.com\"\r\n\"eps\":\r\n  \"https://eps.xxx.xxx.com\""), nil)
+				return patches
+			},
+			func(t *testing.T) {
+				assert.NotNil(t, &endpointConfig)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			patches := testCase.patches()
+			patches.ApplyMethod(&logs.Logger, "Errorf", func(logger *logs.LoggerConstructor, template string, args ...interface{}) {})
+			defer patches.Reset()
+			initEndpointConfig()
+			testCase.expect(t)
+		})
+	}
 }

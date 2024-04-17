@@ -988,6 +988,30 @@ SYS.CBR:
       - used_vault_size
 SYS.WAF:
   dim_metric_name:
+    instance_id:
+      - cpu_util
+      - mem_util
+      - disk_util
+      - disk_avail_size
+      - disk_read_bytes_rate
+      - disk_write_bytes_rate
+      - disk_read_requests_rate
+      - disk_write_requests_rate
+      - network_incoming_bytes_rate
+      - network_outgoing_bytes_rate
+      - network_incoming_packets_rate
+      - network_outgoing_packets_rate
+      - concurrent_connections
+      - active_connections
+      - latest_policy_sync_time
+      - query_per_second
+      - http_2xx
+      - http_3xx
+      - http_4xx
+      - http_5xx
+      - http_response_time
+      - waf_attack_counts
+      - waf_attack_percentage
     waf_instance_id:
       - attacks
       - requests
@@ -1837,10 +1861,51 @@ SYS.DDOS:
       - instance_back_to_source_rate
       - instance_internet_in_rate
       - instance_new_connection
+      - instance_concurrent_connection
+      - instance_service_bandwidth_usage
 SYS.VPN:
   dim_metric_name:
-    connection_id:
+    evpn_connection_id:
+      - tunnel_average_latency
+      - tunnel_max_latency
+      - tunnel_packet_loss_rate
+      - link_average_latency
+      - link_max_latency
+      - link_packet_loss_rate
       - connection_status
+      - recv_pkt_rate
+      - send_pkt_rate
+      - recv_rate
+      - send_rate
+    evpn_connection_id,evpn_sa_id:
+      - sa_send_pkt_rate
+      - sa_recv_pkt_rate
+      - sa_recv_rate
+      - sa_send_rate
+    evpn_gateway_id:
+      - gateway_recv_pkt_rate
+      - gateway_send_pkt_rate
+      - gateway_recv_rate
+      - gateway_send_rate
+      - gateway_recv_rate_usage
+      - gateway_connection_num
+      - gateway_send_rate_usage
+    p2c_vpn_gateway_id:
+      - gateway_connection_num
+      - gateway_recv_pkt_rate
+      - gateway_send_pkt_rate
+      - gateway_recv_rate
+      - gateway_send_rate
+      - gateway_recv_rate_usage
+      - gateway_send_rate_usage
+    vgw_ipsec_connect_id:
+      - connection_status
+      - public_average_latency
+      - public_max_latency
+      - public_packet_loss_rate
+      - private_average_latency
+      - private_max_latency
+      - private_packet_loss_rate
     vpn_connection_id:
       - private_average_latency
       - private_max_latency
@@ -2047,3 +2112,72 @@ SYS.CFW:
       - acl_deny_count
       - protection_bandwidth_usage
       - vpc_protection_bandwidth_usage
+SYS.CDN:
+  dim_metric_name:
+    domain_name:
+      - avg_req_time
+      - bs_bw
+      - bs_fail_num
+      - bs_fail_rate
+      - bs_flux
+      - bs_http_code_2xx
+      - bs_http_code_2xx_rate
+      - bs_http_code_3xx
+      - bs_http_code_3xx_rate
+      - bs_http_code_400
+      - bs_http_code_400_rate
+      - bs_http_code_403
+      - bs_http_code_403_rate
+      - bs_http_code_404
+      - bs_http_code_404_rate
+      - bs_http_code_416
+      - bs_http_code_416_rate
+      - bs_http_code_499
+      - bs_http_code_499_rate
+      - bs_http_code_4xx
+      - bs_http_code_4xx_rate
+      - bs_http_code_500
+      - bs_http_code_500_rate
+      - bs_http_code_502
+      - bs_http_code_502_rate
+      - bs_http_code_503
+      - bs_http_code_503_rate
+      - bs_http_code_504
+      - bs_http_code_504_rate
+      - bs_http_code_5xx
+      - bs_http_code_5xx_rate
+      - bs_num
+      - bw
+      - cc_qps
+      - flux
+      - hit_flux
+      - hit_flux_rate
+      - http_code_2xx
+      - http_code_2xx_rate
+      - http_code_3xx
+      - http_code_3xx_rate
+      - http_code_400
+      - http_code_400_rate
+      - http_code_403
+      - http_code_403_rate
+      - http_code_404
+      - http_code_404_rate
+      - http_code_416
+      - http_code_416_rate
+      - http_code_499
+      - http_code_499_rate
+      - http_code_4xx
+      - http_code_4xx_rate
+      - http_code_500
+      - http_code_500_rate
+      - http_code_502
+      - http_code_502_rate
+      - http_code_503
+      - http_code_503_rate
+      - http_code_504
+      - http_code_504_rate
+      - http_code_5xx
+      - http_code_5xx_rate
+      - network_ddos_bw
+      - network_ddos_pps
+      - req_num

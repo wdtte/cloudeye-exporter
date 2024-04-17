@@ -111,6 +111,9 @@ func getMrsResourceKey(metric model.BatchMetricData) string {
 }
 
 func getEndpoint(server, version string) string {
+	if endpoint, ok := endpointConfig[server]; ok {
+		return endpoint
+	}
 	return fmt.Sprintf("https://%s/%s", strings.Replace(host, "iam", server, 1), version)
 }
 

@@ -77,7 +77,7 @@ func getDMSInstanceFromRMS() []ResourceBaseInfo {
 		instances = append(instances, rabbitResp...)
 	}
 
-	rocketMqs, err := getRocketMQInstances()
+	rocketMqs, err := getResourcesBaseInfoFromRMS("dms", "reliabilitys")
 	if err != nil {
 		logs.Logger.Errorf("Get all dms rocketmqs : %s", err.Error())
 	} else {
