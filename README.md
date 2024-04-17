@@ -74,6 +74,16 @@ auth:
 
 ```
 
+## Example of endpoint file(endpoints.yml)
+European site users should configure the domain names of the rms and eps services as follows.
+```
+"rms":
+  "https://rms.myhuaweicloud.eu"
+"eps":
+  "https://eps.eu-west-101.myhuaweicloud.eu"
+```
+Other site users should not configure anything in this file.
+
 ## Prometheus Configuration
 The huaweicloud exporter needs to be passed the address as a parameter, this can be done with relabelling.
 

@@ -1,10 +1,15 @@
 package collector
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/huaweicloud/cloudeye-exporter/logs"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/ces/v1/model"
+	waf "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1"
+	wafModel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1/model"
 )
 
 var wafInfo serversInfo
@@ -39,6 +44,22 @@ func (getter WAFInfo) GetResourceInfo() (map[string]labelInfo, []model.MetricInf
 			}
 		}
 
+		premiumWafInstances := getAllPremiumWafInstances()
+		if premiumWafInstances == nil {
+			return nil, nil
+		}
+		for _, instance := range premiumWafInstances {
+			if metricNames, ok := sysConfigMap["instance_id"]; ok {
+				metrics := buildSingleDimensionMetrics(metricNames, "SYS.WAF", "instance_id", *instance.Id)
+				filterMetrics = append(filterMetrics, metrics...)
+				info := labelInfo{
+					Name:  []string{"name"},
+					Value: []string{*instance.InstanceName},
+				}
+				resourceInfos[GetResourceKeyFromMetricInfo(metrics[0])] = info
+			}
+		}
+
 		wafInfo.LabelInfo = resourceInfos
 		wafInfo.FilterMetrics = filterMetrics
 		wafInfo.TTL = time.Now().Add(TTL).Unix()
@@ -48,4 +69,28 @@ func (getter WAFInfo) GetResourceInfo() (map[string]labelInfo, []model.MetricInf
 
 func getAllWafInstancesFromRMS() ([]ResourceBaseInfo, error) {
 	return getResourcesBaseInfoFromRMS("waf", "instance")
+}
+
+func getWAFClient() *waf.WafClient {
+	return waf.NewWafClient(waf.WafClientBuilder().WithCredential(
+		basic.NewCredentialsBuilder().WithAk(conf.AccessKey).WithSk(conf.SecretKey).WithProjectId(conf.ProjectID).Build()).
+		WithHttpConfig(config.DefaultHttpConfig().WithIgnoreSSLVerification(true)).
+		WithEndpoint(getEndpoint("waf", "v1")).Build())
+}
+
+func getAllPremiumWafInstances() []wafModel.ListInstance {
+	resp, err := getWAFClient().ListInstance(&wafModel.ListInstanceRequest{})
+	if resp.HttpStatusCode != http.StatusOK {
+		logs.Logger.Errorf("Get all premiumWafInstances HttpStatusCode is %d", resp.HttpStatusCode)
+		return nil
+	}
+	if err != nil {
+		logs.Logger.Errorf("Get all premiumWafInstances err, err is : %s", err.Error())
+		return nil
+	}
+	return *resp.Items
+}
+
+func (getter WAFInfo) resetResourceInfo() {
+	wafInfo.LabelInfo = nil
 }

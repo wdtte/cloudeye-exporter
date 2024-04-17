@@ -38,7 +38,7 @@ func (cfw CFWInfo) GetResourceInfo() (map[string]labelInfo, []cesmodel.MetricInf
 		servers, err := getResourcesBaseInfoFromRMS("cfw", "cfw_instance")
 		if err != nil {
 			logs.Logger.Errorf("Get resource base info from RMS Server error:", err.Error())
-			return ecsInfo.LabelInfo, ecsInfo.FilterMetrics
+			return cfwServerInfo.LabelInfo, cfwServerInfo.FilterMetrics
 		}
 
 		for _, server := range servers {

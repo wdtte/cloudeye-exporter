@@ -92,7 +92,18 @@ auth:
 ```
 注：默认的监控端口为8087.
 
-3. 启动cloudeye-exporter，默认读取当前目录下的clouds.yml文件，也可使用-config参数指定clouds.yml文件路径
+3. 欧洲站注意事项
+
+   欧洲站用户需要为rms、eps服务重新指定域名，如下所示
+```yaml
+"rms":
+  "https://rms.myhuaweicloud.eu"
+"eps":
+  "https://eps.eu-west-101.myhuaweicloud.eu"
+```
+注：其他站点用户无需在此文件配置域名信息
+
+4. 启动cloudeye-exporter，默认读取当前目录下的clouds.yml文件，也可使用-config参数指定clouds.yml文件路径
 ```
 ./cloudeye-exporter -config=clouds.yml
 ```

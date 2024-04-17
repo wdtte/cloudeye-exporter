@@ -157,6 +157,11 @@ func TestGetResourceKeyFromMetricData(t *testing.T) {
 func TestGetEndpoint(t *testing.T) {
 	host = "iam.cn-test-9.myhuaweicloud.com"
 	assert.Equal(t, "https://ecs.cn-test-9.myhuaweicloud.com/v2", getEndpoint("ecs", "v2"))
+
+	endpointConfig = map[string]string{
+		"ecs": "https://ecs.cn-test-9.myhuaweicloud.com/v2",
+	}
+	assert.Equal(t, "https://ecs.cn-test-9.myhuaweicloud.com/v2", getEndpoint("ecs", "v2"))
 }
 
 func TestGetTags(t *testing.T) {

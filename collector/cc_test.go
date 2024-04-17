@@ -68,3 +68,11 @@ func TestCCGetResourceInfo(t *testing.T) {
 	assert.Equal(t, 1, len(labels))
 	assert.Equal(t, 1, len(metrics))
 }
+
+func TestGetCCClient(t *testing.T) {
+	endpointConfig = map[string]string{
+		"cc": "https://cc.myhuaweicloud.com",
+	}
+	ccClient := getCCClient()
+	assert.NotNil(t, ccClient)
+}

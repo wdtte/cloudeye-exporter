@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	cc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cc/v3"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cc/v3/model"
@@ -157,8 +158,17 @@ func listBandwidthPackages() (map[string]model.BandwidthPackage, error) {
 }
 
 func getCCClient() *cc.CcClient {
-	return cc.NewCcClient(cc.CcClientBuilder().WithRegion(region.ValueOf("cn-north-4")).
-		WithCredential(global.NewCredentialsBuilder().WithAk(conf.AccessKey).WithSk(conf.SecretKey).Build()).Build())
+	return cc.NewCcClient(getCCClientBuilder().Build())
+}
+
+func getCCClientBuilder() *http_client.HcHttpClientBuilder {
+	builder := cc.CcClientBuilder().WithCredential(global.NewCredentialsBuilder().WithAk(conf.AccessKey).WithSk(conf.SecretKey).Build())
+	if endpoint, ok := endpointConfig["cc"]; ok {
+		builder.WithEndpoint(endpoint)
+	} else {
+		builder.WithRegion(region.ValueOf("cn-north-4"))
+	}
+	return builder
 }
 
 func listInterRegionBandwidths() ([]model.InterRegionBandwidth, error) {
