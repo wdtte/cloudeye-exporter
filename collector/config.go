@@ -48,7 +48,7 @@ type CloudConfig struct {
 	Auth   CloudAuth `yaml:"auth"`
 	Global Global    `yaml:"global"`
 }
-
+---
 var CloudConf CloudConfig
 var SecurityMod bool
 var TmpAK string
