@@ -63,6 +63,8 @@ type Global struct {
 	IgnoreSSLVerify             bool   `yaml:"ignore_ssl_verify"`
 }
 
+---
+
 type CloudConfig struct {
 	Auth   CloudAuth `yaml:"auth"`
 	Global Global    `yaml:"global"`
